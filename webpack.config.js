@@ -2,6 +2,11 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
+const webpack = require("webpack");
+const dotenv = require("dotenv");
+
+//.env.local 파일에서 환경변수 로드
+dotenv.config({ path: "./.env.local" });
 
 module.exports = {
   mode: "development",
@@ -41,6 +46,7 @@ module.exports = {
     new CopyPlugin({
       patterns: [{ from: "assets", to: "images" }],
     }),
+    new webpack.EnvironmentPlugin(["APP_SERVICE_KEY"]),
   ],
   output: {
     filename: "bundle.js",
