@@ -1,2 +1,6 @@
 dist/
 node_modules/
+*.log
+.github
+*.local
+.DS_Store
