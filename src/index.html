@@ -1,40 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Check Weather Temperature</title>
+    <title>날씨 온도 비교</title>
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
     <script src="bundle.js" defer></script>
   </head>
   <body>
     <div class="swiper">
+      <div class="loading-spinner"></div>
       <div class="swiper-wrapper">
         <div class="swiper-slide">
-          <div class="head_container">
-            <header class="header_title">
-              <h1 class="header_h1">오늘과 내일 온도</h1>
+          <div class="head-container">
+            <header class="header-title">
+              <h1 class="header-h1">어제, 오늘, 내일 온도</h1>
               <img
-                src="images/fever_temperature.png"
-                class="header_temperature_icon"
-                alt="header_temperature_icon"
+                src="images/fever-temperature.png"
+                class="header-temperature-icon"
+                alt="temperature-icon"
               />
             </header>
           </div>
-          <canvas class="todayChart"></canvas>
+          <canvas class="today-chart"></canvas>
+          <div class="temperature-comparison"></div>
         </div>
         <div class="swiper-slide">
-          <div class="head_container">
-            <header class="header_title">
-              <h1 class="header_h1">주간 온도</h1>
+          <div class="head-container">
+            <header class="header-title">
+              <h1 class="header-h1">주간 온도</h1>
               <img
-                src="images/fever_temperature.png"
-                class="header_temperature_icon"
-                alt="header_temperature_icon"
+                src="images/fever-temperature.png"
+                class="header-temperature-icon"
+                alt="header-temperature-icon"
               />
             </header>
           </div>
-          <canvas class="weeklyChart"></canvas>
+          <canvas class="weekly-chart"></canvas>
         </div>
       </div>
       <div class="swiper-button-prev"></div>
