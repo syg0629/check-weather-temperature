@@ -46,7 +46,7 @@ module.exports = {
     new CopyPlugin({
       patterns: [{ from: "assets", to: "images" }],
     }),
-    new webpack.EnvironmentPlugin(["APP_SERVICE_KEY"]),
+    new webpack.EnvironmentPlugin(["APP_SERVICE_KEY", "KAKAO_REST_API_KEY"]),
   ],
   output: {
     filename: "bundle.js",
