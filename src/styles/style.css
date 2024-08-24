@@ -24,21 +24,37 @@
 
 .head-container {
   display: flex;
-  flex-wrap: nowrap;
   justify-content: center;
 }
 
 .header-title {
   display: flex;
-  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
   width: 1200px;
   margin: 50px 0 40px 20px;
+}
+
+.header-title-conrtainer {
+  display: flex;
+  align-items: center;
 }
 
 .header-h1 {
   display: inline-flex;
   align-items: center;
   text-align: center;
+}
+
+.header-location-container {
+  display: flex;
+  align-items: center;
+}
+
+.header-p {
+  font-size: 20px;
+  font-weight: 500;
+  margin: 0;
 }
 
 .header-temperature-icon {
