@@ -3,7 +3,7 @@ import { areaCodeMap } from "../../utils/areaCodeMap";
 import { fetchData } from "../fetchData";
 
 const KAKAO_REST_API_KEY = process.env.KAKAO_REST_API_KEY;
-// 예보구역코드 오류 시 서울을 기본 값으로 보여줌
+// 예보구역코드 오류 시 서울이 기본 값
 const DEFAULT_AREA_CODE = "11B10101";
 
 export const fetchReverseGeo = async (
@@ -45,7 +45,7 @@ const updateLocationDisplay = (
   ).innerHTML = `${region1}`;
 };
 
-//기상청 주간 예보 API 사용 시 필요한 예보구역코드
+// 기상청 주간 예보 API 사용 시 필요한 예보구역코드 가져오기
 const getAreaCode = (locationName: string) => {
   const code = areaCodeMap.get(locationName);
   if (code) return code;
