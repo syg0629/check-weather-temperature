@@ -1,6 +1,25 @@
-import { ChartOptions } from "chart.js";
+import {
+  Chart,
+  LineController,
+  LineElement,
+  PointElement,
+  LinearScale,
+  CategoryScale,
+  Tooltip,
+  Legend,
+  ChartOptions,
+} from "chart.js";
+
+Chart.register(
+  LineController,
+  LineElement,
+  PointElement,
+  LinearScale,
+  CategoryScale,
+  Tooltip,
+  Legend
+);
 import { Dataset } from "./types/type";
-import Chart from "chart.js/auto";
 
 export const createChart = (
   canvasSelector: string,
@@ -8,6 +27,7 @@ export const createChart = (
   datasets: Dataset[],
   options: ChartOptions = {}
 ) => {
+  Chart.defaults.font.size = 23;
   const canvas = document.querySelector<HTMLCanvasElement>(canvasSelector);
   const ctx = canvas.getContext("2d");
 

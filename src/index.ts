@@ -1,5 +1,4 @@
-import Swiper, { Navigation } from "swiper";
-import Chart from "chart.js/auto";
+import { Swiper, Navigation } from "swiper";
 import "./styles/style.css";
 import { dfsXyConv } from "./utils/dfsXyConv";
 import { userLocation } from "./types/type";
@@ -49,8 +48,6 @@ const initSwiper = () => {
     parallax: true,
   });
 };
-
-Chart.defaults.font.size = 23;
 
 // 모든 날씨 데이터
 const fetchAllWeatherData = async (userLocation: userLocation) => {
