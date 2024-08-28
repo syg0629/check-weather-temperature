@@ -1,23 +1,22 @@
-const path = require("path");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const CopyPlugin = require("copy-webpack-plugin");
-const webpack = require("webpack");
-const dotenv = require("dotenv");
-const TerserPlugin = require("terser-webpack-plugin");
-const BundleAnalyzerPlugin =
-  require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
-const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
+import path from "path";
+import webpack from "webpack";
+import HtmlWebpackPlugin from "html-webpack-plugin";
+import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import CopyPlugin from "copy-webpack-plugin";
+import "webpack-dev-server";
+import dotenv from "dotenv";
+import TerserPlugin from "terser-webpack-plugin";
+import CssMinimizerPlugin from "css-minimizer-webpack-plugin";
 
-//.env.local 파일에서 환경변수 로드
-dotenv.config({ path: "./.env.local" });
+const webpackConfig = (argv: { mode: string }): webpack.Configuration => {
+  //.env.local 파일에서 환경변수 로드
+  dotenv.config({ path: "./.env.local" });
 
-module.exports = (argv) => {
   const isProduction = argv.mode === "production";
 
-  return {
+  const config: webpack.Configuration = {
     mode: isProduction ? "production" : "development",
-    entry: "./src/index.ts",
+    entry: ["./src/index.ts", "./src/styles/style.css"],
     devtool: isProduction ? "source-map" : "eval-source-map",
     devServer: {
       static: "./dist",
@@ -67,13 +66,6 @@ module.exports = (argv) => {
         patterns: [{ from: "assets", to: "images" }],
       }),
       new webpack.EnvironmentPlugin(["APP_SERVICE_KEY", "KAKAO_REST_API_KEY"]),
-      new BundleAnalyzerPlugin({
-        analyzerMode: "static",
-        openAnalyzer: false,
-      }),
-      new MiniCssExtractPlugin({
-        filename: isProduction ? "[name].[contenthash].css" : "[name].css",
-      }),
     ],
     output: {
       filename: isProduction ? "[name].[contenthash].js" : "[name].bundle.js",
@@ -85,4 +77,8 @@ module.exports = (argv) => {
       clean: true,
     },
   };
+
+  return config;
 };
+
+export default webpackConfig;
