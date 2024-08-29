@@ -58,7 +58,7 @@ export const createChart = (
       data: { labels, datasets },
       options: {
         responsive: true,
-        maintainAspectRatio: true,
+        maintainAspectRatio: false,
         scales: {
           x: {
             ticks: {

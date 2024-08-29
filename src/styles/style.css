@@ -63,11 +63,16 @@
   margin-top: 10px;
 }
 
+.chart-container {
+  position: relative;
+  height: 60vh;
+  width: 70vw;
+  margin: 0 auto;
+}
+
 .today-chart,
 .weekly-chart {
-  width: 1200px;
-  height: 600px;
-  margin: 0 auto;
+  width: 90%;
 }
 
 .swiper {
@@ -95,4 +100,25 @@
   font-size: 20px;
   margin: 0 auto;
   margin-top: 40px;
+}
+
+@media (max-width: 713px) {
+  .header-h1 {
+    font-size: 30px;
+  }
+  .header-temperature-icon {
+    visibility: hidden;
+  }
+  .header-location-container {
+    display: flex;
+    flex-direction: column;
+    font-size: 15px;
+  }
+  .swiper {
+    margin: 0;
+  }
+  .temperature-comparison {
+    padding: 5px;
+    margin-top: 18px;
+  }
 }
