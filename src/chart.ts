@@ -21,13 +21,20 @@ Chart.register(
 );
 import { Dataset } from "./types/type";
 
+// 반응형으로 폰트 크기 계산
+const calculateFontsSize = (baseSize: number = 20) => {
+  return (context: { chart: Chart }) => {
+    const width = context.chart.width;
+    return Math.min(Math.round(width / 20), baseSize);
+  };
+};
+
 export const createChart = (
   canvasSelector: string,
   labels: string[],
   datasets: Dataset[],
   options: ChartOptions = {}
 ) => {
-  Chart.defaults.font.size = 23;
   const canvas = document.querySelector<HTMLCanvasElement>(canvasSelector);
   const ctx = canvas.getContext("2d");
 
@@ -57,6 +64,7 @@ export const createChart = (
       type: "line",
       data: { labels, datasets },
       options: {
+        animation: false,
         responsive: true,
         maintainAspectRatio: false,
         scales: {
@@ -67,6 +75,19 @@ export const createChart = (
                 const label = this.getLabelForValue(value);
                 return label ? label.split("\n") : label;
               },
+              font: { size: calculateFontsSize() },
+            },
+          },
+          y: {
+            ticks: {
+              font: { size: calculateFontsSize() },
+            },
+          },
+        },
+        plugins: {
+          legend: {
+            labels: {
+              font: { size: calculateFontsSize(16) },
             },
           },
         },
