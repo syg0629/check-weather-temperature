@@ -53,10 +53,8 @@ const initSwiper = () => {
 const fetchAllWeatherData = async (userLocation: userLocation) => {
   loadingSpinner(true);
   try {
-    await Promise.all([
-      await processShortTermForecast(userLocation),
-      await processWeeklyForecast(userLocation),
-    ]);
+    await processShortTermForecast(userLocation),
+      await processWeeklyForecast(userLocation);
   } catch (error) {
     console.error("날씨 데이터 가져오는 중 오류: ", error);
     alert("날씨 데이터를 가져오는 중 오류가 발생했습니다.");
