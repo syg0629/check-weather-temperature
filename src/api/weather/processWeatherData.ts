@@ -115,13 +115,23 @@ const createShortTermChart = () => {
     },
   ]);
 
-  document.querySelector(
-    ".temperature-comparison"
-  ).innerHTML = `어제보다 오늘은 최고온도 ${
-    Number(weatherData.TMXs[1]) - Number(weatherData.TMXs[0])
-  }도 / 최저온도 ${
-    Number(weatherData.TMNs[1]) - Number(weatherData.TMNs[0])
-  }도 차이가 있습니다!`;
+  const maxTempDiff = Number(weatherData.TMXs[1]) - Number(weatherData.TMXs[0]);
+  const minTempDiff = Number(weatherData.TMNs[1]) - Number(weatherData.TMNs[0]);
+
+  document.querySelector(".temperature-comparison").innerHTML = `어제보다 오늘은
+  <div> 
+  최고온도 <span class="${
+    maxTempDiff > 0 ? "red-text" : "blue-text"
+  }">${maxTempDiff}도 ${
+    Math.abs(maxTempDiff) > 0 ? "높고" : "낮고"
+  }</span>, 최저온도
+  <span class="${
+    minTempDiff > 0 ? "red-text" : "blue-text"
+  }">${minTempDiff}도 ${
+    Math.abs(maxTempDiff) > 0 ? "낮습니다." : "높습니다."
+  }</span>
+  <div>
+  `;
 };
 
 export const processShortTermForecast = async (userLocation: userLocation) => {
