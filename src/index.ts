@@ -16,6 +16,7 @@ const loadingSpinner = (show: boolean) => {
 
 // 사용자 위치 정보와 날씨 정보 가져오기
 const initGeoAndWeather = () => {
+  loadingSpinner(true);
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition((position) => {
       const userLocation = dfsXyConv(
@@ -51,7 +52,6 @@ const initSwiper = () => {
 
 // 모든 날씨 데이터
 const fetchAllWeatherData = async (userLocation: userLocation) => {
-  loadingSpinner(true);
   try {
     await processShortTermForecast(userLocation),
       await processWeeklyForecast(userLocation);
