@@ -18,14 +18,20 @@ const loadingSpinner = (show: boolean) => {
 const initGeoAndWeather = () => {
   loadingSpinner(true);
   if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition((position) => {
-      const userLocation = dfsXyConv(
-        "toXY",
-        position.coords.latitude,
-        position.coords.longitude
-      );
-      fetchAllWeatherData(userLocation);
-    });
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const userLocation = dfsXyConv(
+          "toXY",
+          position.coords.latitude,
+          position.coords.longitude
+        );
+        fetchAllWeatherData(userLocation);
+      },
+      (error) => {
+        alert("위치 확인이 불가능하여 기본 위치(서울)로 설정합니다.");
+        fetchAllWeatherData({ lat: 37.5665, lng: 126.978, x: 60, y: 127 });
+      }
+    );
   } else {
     alert(
       "이 브라우저는 위치 정보를 지원하지 않습니다. 기본 위치(서울)로 설정합니다."
