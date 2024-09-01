@@ -127,7 +127,7 @@ const createShortTermChart = () => {
   }</span>, 최저온도
   <span class="${minTempDiff > 0 ? "red-text" : "blue-text"}">${Math.abs(
     minTempDiff
-  )}도 ${maxTempDiff > 0 ? "높습니다." : "낮습니다."}</span>
+  )}도 ${minTempDiff > 0 ? "높습니다." : "낮습니다."}</span>
   <div>
   `;
 };
