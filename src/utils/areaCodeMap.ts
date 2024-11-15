@@ -1,4 +1,4 @@
-// 기상청 주간 예보 API 예보구역코드
+// 기상청 중기예보 조회서비스 API 예보구역코드
 // 예보구역코드가 있어야 그 지역의 주간 날씨 조회 가능
 export const areaCodeMap: Map<string, string> = new Map([
   ["백령도", "11A00101"],
