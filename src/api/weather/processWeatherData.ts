@@ -1,93 +1,93 @@
 import { createChart } from "../../chart";
 import {
+  ShortTermItem,
   userLocation,
   WeatherData,
   WeatherItem,
   WeeklyItems,
+  YesterdayItem,
 } from "../../types/type";
-import { getFormattedDate, week } from "../../utils/date";
+import { DATES, week } from "../../utils/date";
 import { pytEmojis, skyEmojis } from "../../utils/weatherEmojis";
-import { fetchShortTermForecast, fetchWeeklyForecast } from "./fetchWeather";
+import {
+  fetchShortTermForecast,
+  fetchWeeklyForecast,
+  fetchYesterdayForecast,
+} from "./fetchWeather";
 
 const weatherData: WeatherData = {
   TMNs: [],
   TMXs: [],
-  weather: [],
+  weatherConditions: [],
   weatherEmojis: [],
 };
 
-// 기상청 API 호출용 날짜 포맷
-const dates = {
-  yesterday: getFormattedDate(-1),
-  today: getFormattedDate(0),
-  tomorrow: getFormattedDate(1),
-  dayAfterTomorrow: getFormattedDate(2),
-};
-
-// 조회해야 할 카테고리, 예상일보 날짜로 해당 데이터 가져오기
+// 날씨 데이터 찾기(어제, 오늘, 내일)
 const findWeatherData = (
   items: WeatherItem[],
   category: string,
   date: string
 ) => {
-  const item = items.find(
-    (item) => item.category === category && item.fcstDate === date
-  ).fcstValue;
+  // 어제 날짜인 경우
+  if (date === DATES.yesterday) {
+    const item = items[0] as YesterdayItem;
+    return category === "minTa" ? item?.minTa : item?.maxTa;
 
-  if (!item) {
-    console.error(
-      `${date} 데이터에서 카테고리 ${category}를 찾을 수 없습니다. `
-    );
-    return "N/A";
+    // 오늘, 내일 날짜인 경우
+  } else {
+    const shortTermItems = items as ShortTermItem[];
+    return shortTermItems.find(
+      (item) => item.category === category && item.fcstDate === date
+    ).fcstValue;
   }
-
-  return item;
 };
 
 // 단기 예보 정보를 받아와 필요한 데이터만 화면에 노출
 const processShortTermData = (
-  yesterdayItems: WeatherItem[],
-  shortTermItems: WeatherItem[]
+  yesterdayItems: YesterdayItem[],
+  shortTermItems: ShortTermItem[]
 ) => {
   weatherData.TMNs = [
-    findWeatherData(yesterdayItems, "TMN", dates.yesterday),
-    findWeatherData(shortTermItems, "TMN", dates.today),
-    findWeatherData(shortTermItems, "TMN", dates.tomorrow),
+    findWeatherData([yesterdayItems[0]], "minTa", DATES.yesterday),
+    findWeatherData(shortTermItems, "TMN", DATES.today),
+    findWeatherData(shortTermItems, "TMN", DATES.tomorrow),
     //어제, 오늘, 내일 온도에서는 필요 없지만 주간 예보를 위해 미리 넣어둠
-    findWeatherData(shortTermItems, "TMN", dates.dayAfterTomorrow),
+    findWeatherData(shortTermItems, "TMN", DATES.dayAfterTomorrow),
   ];
   weatherData.TMXs = [
-    findWeatherData(yesterdayItems, "TMX", dates.yesterday),
-    findWeatherData(shortTermItems, "TMX", dates.today),
-    findWeatherData(shortTermItems, "TMX", dates.tomorrow),
+    findWeatherData([yesterdayItems[0]], "maxTa", DATES.yesterday),
+    findWeatherData(shortTermItems, "TMX", DATES.today),
+    findWeatherData(shortTermItems, "TMX", DATES.tomorrow),
     //어제, 오늘, 내일 온도에서는 필요 없지만 주간 예보를 위해 미리 넣어둠
-    findWeatherData(shortTermItems, "TMX", dates.dayAfterTomorrow),
+    findWeatherData(shortTermItems, "TMX", DATES.dayAfterTomorrow),
   ];
-  weatherData.weather = [
+  weatherData.weatherConditions = [
     [
-      findWeatherData(yesterdayItems, "SKY", dates.yesterday),
-      findWeatherData(yesterdayItems, "PTY", dates.yesterday),
+      findWeatherData(yesterdayItems, "SKY", DATES.yesterday),
+      findWeatherData(yesterdayItems, "PTY", DATES.yesterday),
     ],
     [
-      findWeatherData(shortTermItems, "SKY", dates.today),
-      findWeatherData(shortTermItems, "PTY", dates.today),
+      findWeatherData(shortTermItems, "SKY", DATES.today),
+      findWeatherData(shortTermItems, "PTY", DATES.today),
     ],
     [
-      findWeatherData(shortTermItems, "SKY", dates.tomorrow),
-      findWeatherData(shortTermItems, "PTY", dates.tomorrow),
+      findWeatherData(shortTermItems, "SKY", DATES.tomorrow),
+      findWeatherData(shortTermItems, "PTY", DATES.tomorrow),
     ],
   ];
 
-  weatherData.weatherEmojis = weatherData.weather.map(([skyCode, pytCode]) => {
-    if (pytCode === "0") {
-      if (["1", "3", "4"].includes(skyCode)) return skyEmojis[skyCode];
-    } else if (["1", "2", "5"].includes(pytCode)) {
-      return pytEmojis[1];
-    } else if (["3", "6", "7"].includes(pytCode)) {
-      return pytEmojis[3];
+  weatherData.weatherEmojis = weatherData.weatherConditions.map(
+    ([skyCode, pytCode]) => {
+      if (pytCode === "0") {
+        if (["1", "3", "4"].includes(skyCode)) return skyEmojis[skyCode];
+      } else if (["1", "2", "5"].includes(pytCode)) {
+        return pytEmojis[1];
+      } else if (["3", "6", "7"].includes(pytCode)) {
+        return pytEmojis[3];
+      }
+      return "";
     }
-    return "";
-  });
+  );
 };
 
 const createShortTermChart = () => {
@@ -120,13 +120,11 @@ const createShortTermChart = () => {
 
   document.querySelector(".temperature-comparison").innerHTML = `어제보다 오늘은
   <div> 
-  최고온도 <span class="${
-    maxTempDiff > 0 ? "red-text" : "blue-text"
-  }">${Math.abs(maxTempDiff)}도 ${
-    maxTempDiff > 0 ? "높고" : "낮고"
-  }</span>, 최저온도
-  <span class="${minTempDiff > 0 ? "red-text" : "blue-text"}">${Math.abs(
-    minTempDiff
+  최고온도 <span class="${maxTempDiff > 0 ? "red-text" : "blue-text"}">${Number(
+    Math.abs(maxTempDiff).toFixed(2)
+  )}도 ${maxTempDiff > 0 ? "높고" : "낮고"}</span>, 최저온도
+  <span class="${minTempDiff > 0 ? "red-text" : "blue-text"}">${Number(
+    Math.abs(minTempDiff).toFixed(2)
   )}도 ${minTempDiff > 0 ? "높습니다." : "낮습니다."}</span>
   <div>
   `;
@@ -134,15 +132,23 @@ const createShortTermChart = () => {
 
 export const processShortTermForecast = async (userLocation: userLocation) => {
   try {
-    const [yesterdayItems, shortTermItems] = await Promise.all([
-      fetchShortTermForecast(dates.yesterday, userLocation),
-      fetchShortTermForecast(dates.today, userLocation),
+    const results = await Promise.allSettled([
+      fetchYesterdayForecast(DATES.yesterday, userLocation),
+      fetchShortTermForecast(DATES.today, userLocation),
     ]);
-    processShortTermData(yesterdayItems, shortTermItems);
+
+    if (results[0].status === "rejected" || results[1].status === "rejected") {
+      throw new Error("데이터 가져오기 실패");
+    }
+
+    const yesterdayItems = results[0].value as YesterdayItem[];
+    const todayItems = results[1].value as ShortTermItem[];
+
+    processShortTermData(yesterdayItems, todayItems);
     createShortTermChart();
   } catch (error) {
-    console.error("단기 예보 데이터 처리 중 오류가 발생했습니다:", error);
-    alert("단기 예보 데이터 처리 중 오류가 발생했습니다.");
+    console.error("단기 예보 데이터 처리 중 오류 발생:", error);
+    throw error;
   }
 };
 
@@ -190,11 +196,11 @@ const createWeeklyChart = () => {
 
 export const processWeeklyForecast = async (userLocation: userLocation) => {
   try {
-    const weeklyItems = await fetchWeeklyForecast(dates.today, userLocation);
+    const weeklyItems = await fetchWeeklyForecast(DATES.today, userLocation);
     processWeeklyData(weeklyItems);
     createWeeklyChart();
   } catch (error) {
-    console.error("주간 데이터 처리 중 오류가 발생했습니다:", error);
+    console.error("주간 데이터 처리 중 오류 발생:", error);
     alert("주간 데이터 처리 중 오류가 발생했습니다.");
   }
 };
