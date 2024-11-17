@@ -14,11 +14,21 @@ export type Dataset = {
   borderWidth: number;
 };
 
-export type WeatherItem = {
+// 어제 날씨
+export type YesterdayItem = {
+  tm: string;
+  minTa: string;
+  maxTa: string;
+};
+
+// 오늘, 내일 날씨
+export type ShortTermItem = {
   category: string;
   fcstDate: string;
   fcstValue: string;
 };
+
+export type WeatherItem = YesterdayItem | ShortTermItem;
 
 export type WeeklyItems = {
   taMin3: string;
@@ -39,7 +49,12 @@ export interface WeatherData {
   // TMX 일 최고기온
   TMXs: string[];
   // 날씨
-  weather: string[][];
+  weatherConditions: string[][];
   // 날씨 이모지
   weatherEmojis: string[];
+}
+
+export interface LocationCode {
+  areaCode: string;
+  branchCode: string;
 }
