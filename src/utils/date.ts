@@ -8,3 +8,11 @@ export const getFormattedDate = (daysFromToday: number) =>
 export const week: string[] = Array(8)
   .fill(0)
   .map((_, i) => dayjs().subtract(1, "day").add(i, "d").format("M/D"));
+
+// 기상청 API 호출용 날짜 포맷
+export const DATES = {
+  yesterday: getFormattedDate(-1),
+  today: getFormattedDate(0),
+  tomorrow: getFormattedDate(1),
+  dayAfterTomorrow: getFormattedDate(2),
+};
