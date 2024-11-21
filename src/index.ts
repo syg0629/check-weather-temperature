@@ -6,7 +6,6 @@ import {
   processShortTermForecast,
   processWeeklyForecast,
 } from "./api/weather/processWeatherData";
-import { error } from "console";
 
 // 기본 사용자 위치(서울)
 const DEFAULT_LOCATION: userLocation = {
@@ -25,6 +24,7 @@ const loadingSpinner = (show: boolean) => {
 
 // 사용자 위치 정보와 날씨 정보 가져오기
 const initGeoAndWeather = () => {
+  loadingSpinner(true);
   if (!navigator.geolocation) {
     alert(
       "이 브라우저는 위치 정보를 지원하지 않습니다. 기본 위치(서울)로 설정합니다."
@@ -60,21 +60,6 @@ const initSwiper = () => {
     observeParents: true,
     parallax: true,
   });
-};
-
-// 날씨 데이터 처리
-const processForecastData = async (
-  userLocation: userLocation,
-  processFunction: (location: userLocation) => Promise<void>,
-  errorMessage: string
-) => {
-  try {
-    await processFunction(userLocation);
-    console.log("날씨 데이터 처리 성공: ", errorMessage);
-  } catch (error) {
-    console.error(`${errorMessage}: `, error);
-    throw new Error(errorMessage);
-  }
 };
 
 // 모든 날씨 데이터 가져오기
