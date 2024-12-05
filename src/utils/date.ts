@@ -15,4 +15,5 @@ export const DATES = {
   today: getFormattedDate(0),
   tomorrow: getFormattedDate(1),
   dayAfterTomorrow: getFormattedDate(2),
+  twoDaysAfterTomorrow: getFormattedDate(3),
 };
