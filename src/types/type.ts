@@ -31,10 +31,6 @@ export type ShortTermItem = {
 export type WeatherItem = YesterdayItem | ShortTermItem;
 
 export type WeeklyItems = {
-  taMin3: string;
-  taMax3: string;
-  taMin4: string;
-  taMax4: string;
   taMin5: string;
   taMax5: string;
   taMin6: string;
