@@ -31,15 +31,16 @@ const findWeatherData = (
   // 어제 날짜인 경우
   if (date === DATES.yesterday) {
     const item = items[0] as YesterdayItem;
-    return category === "minTa" ? item?.minTa : item?.maxTa;
-
-    // 오늘, 내일 날짜인 경우
-  } else {
-    const shortTermItems = items as ShortTermItem[];
-    return shortTermItems.find(
-      (item) => item.category === category && item.fcstDate === date
-    ).fcstValue;
+    return category === "minTa" ? item.minTa : item.maxTa ?? "-";
   }
+
+  // 오늘, 내일 날짜인 경우
+  const shortTermItems = items as ShortTermItem[];
+  const item = shortTermItems.find(
+    (item) => item.category === category && item.fcstDate === date
+  );
+
+  return item.fcstValue ?? "-";
 };
 
 // 단기 예보 정보를 받아와 필요한 데이터만 화면에 노출
@@ -53,6 +54,7 @@ const processShortTermData = (
     findWeatherData(shortTermItems, "TMN", DATES.tomorrow),
     //어제, 오늘, 내일 온도에서는 필요 없지만 주간 예보를 위해 미리 넣어둠
     findWeatherData(shortTermItems, "TMN", DATES.dayAfterTomorrow),
+    findWeatherData(shortTermItems, "TMN", DATES.twoDaysAfterTomorrow),
   ];
   weatherData.TMXs = [
     findWeatherData([yesterdayItems[0]], "maxTa", DATES.yesterday),
@@ -60,6 +62,7 @@ const processShortTermData = (
     findWeatherData(shortTermItems, "TMX", DATES.tomorrow),
     //어제, 오늘, 내일 온도에서는 필요 없지만 주간 예보를 위해 미리 넣어둠
     findWeatherData(shortTermItems, "TMX", DATES.dayAfterTomorrow),
+    findWeatherData(shortTermItems, "TMX", DATES.twoDaysAfterTomorrow),
   ];
   weatherData.weatherConditions = [
     [
@@ -133,8 +136,8 @@ const createShortTermChart = () => {
 export const processShortTermForecast = async (userLocation: userLocation) => {
   try {
     const results = await Promise.allSettled([
-      fetchYesterdayForecast(DATES.yesterday, userLocation),
-      fetchShortTermForecast(DATES.today, userLocation),
+      fetchYesterdayForecast(userLocation),
+      fetchShortTermForecast(userLocation),
     ]);
 
     if (results[0].status === "rejected" || results[1].status === "rejected") {
@@ -155,15 +158,11 @@ export const processShortTermForecast = async (userLocation: userLocation) => {
 // 주간 예보 정보를 받아와 필요한 데이터만 화면에 노출
 const processWeeklyData = async (weeklyItems: WeeklyItems) => {
   const weeklyTMNs = [
-    weeklyItems.taMin3,
-    weeklyItems.taMin4,
     weeklyItems.taMin5,
     weeklyItems.taMin6,
     weeklyItems.taMin7,
   ];
   const weeklyTMXs = [
-    weeklyItems.taMax3,
-    weeklyItems.taMax4,
     weeklyItems.taMax5,
     weeklyItems.taMax6,
     weeklyItems.taMax7,
