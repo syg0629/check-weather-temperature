@@ -158,14 +158,14 @@ export const processShortTermForecast = async (userLocation: userLocation) => {
 // 주간 예보 정보를 받아와 필요한 데이터만 화면에 노출
 const processWeeklyData = async (weeklyItems: WeeklyItems) => {
   const weeklyTMNs = [
+    weeklyItems.taMin4,
     weeklyItems.taMin5,
     weeklyItems.taMin6,
-    weeklyItems.taMin7,
   ];
   const weeklyTMXs = [
+    weeklyItems.taMax4,
     weeklyItems.taMax5,
     weeklyItems.taMax6,
-    weeklyItems.taMax7,
   ];
 
   weatherData.TMNs = [...weatherData.TMNs, ...weeklyTMNs];

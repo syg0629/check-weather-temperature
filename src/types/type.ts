@@ -31,12 +31,12 @@ export type ShortTermItem = {
 export type WeatherItem = YesterdayItem | ShortTermItem;
 
 export type WeeklyItems = {
+  taMin4: string;
+  taMax4: string;
   taMin5: string;
   taMax5: string;
   taMin6: string;
   taMax6: string;
-  taMin7: string;
-  taMax7: string;
 };
 
 export interface WeatherData {
