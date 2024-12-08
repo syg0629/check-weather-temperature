@@ -39,13 +39,22 @@ export type WeeklyItems = {
   taMax6: string;
 };
 
+export type WeeklyWeahterItems = {
+  wf4Am: string;
+  wf4Pm: string;
+  wf5Am: string;
+  wf5Pm: string;
+  wf6Am: string;
+  wf6Pm: string;
+};
+
 export interface WeatherData {
   // TMN 일 최저기온
   TMNs: string[];
   // TMX 일 최고기온
   TMXs: string[];
-  // 날씨
-  weatherConditions: string[][];
+  // 단기예보 데이터의 하늘상태, 강수형태 / 중기예보에는 해당 데이터 존재하지 않음
+  weatherConditions?: string[][];
   // 날씨 이모지
   weatherEmojis: string[];
 }
