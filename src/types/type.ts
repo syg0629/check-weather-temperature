@@ -39,7 +39,7 @@ export type WeeklyItems = {
   taMax6: string;
 };
 
-export type WeeklyWeahterItems = {
+export type WeeklyWeatherItems = {
   wf4Am: string;
   wf4Pm: string;
   wf5Am: string;
@@ -62,4 +62,5 @@ export interface WeatherData {
 export interface LocationCode {
   areaCode: string;
   branchCode: string;
+  landForecastAreaCode: string;
 }
