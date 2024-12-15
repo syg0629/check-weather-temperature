@@ -69,7 +69,7 @@ export const fetchShortTermForecast = async (userLocation: userLocation) => {
 
     if (!data?.response?.body?.items?.item) {
       console.error("API 응답: ", data);
-      throw new Error("API 응답 데이터 형식이 올바르지 않습니다.");
+      throw new Error("단기예보 API 응답 데이터 형식이 올바르지 않습니다.");
     }
 
     return data.response.body.items.item;
@@ -82,9 +82,10 @@ export const fetchShortTermForecast = async (userLocation: userLocation) => {
 // 중기 예보
 const getWeeklyBaseDate = (date: string) => {
   if (currentHour < WEEKLY_DATA_UPDATE_HOUR) {
-    return DATES.yesterday;
+    return DATES.yesterday + "1800";
   }
-  return date;
+  // 중기예보 발표 6시가 4일부터, 18시는 5일부터 제공
+  return date + "0600";
 };
 
 export const fetchWeeklyForecast = async (
@@ -93,16 +94,28 @@ export const fetchWeeklyForecast = async (
 ) => {
   try {
     date = getWeeklyBaseDate(date);
-    const areaCode = (await fetchReverseGeo(userLocation)).areaCode;
+    const { areaCode, landForecastAreaCode } = await fetchReverseGeo(
+      userLocation
+    );
+
     if (!areaCode) throw new Error("지역 코드를 가져오는데 실패했습니다.");
 
-    const url = `https://apis.data.go.kr/1360000/MidFcstInfoService/getMidTa?serviceKey=${APP_SERVICE_KEY}&pageNo=1&numOfRows=10&dataType=JSON&regId=${areaCode}&tmFc=${date}0600`;
-    const data = await fetchData(url);
-    if (!data?.response?.body?.items?.item?.[0]) {
-      throw new Error("API 응답 데이터 형식이 올바르지 않습니다.");
+    const temperatureUrl = `https://apis.data.go.kr/1360000/MidFcstInfoService/getMidTa?serviceKey=${APP_SERVICE_KEY}&pageNo=1&numOfRows=10&dataType=JSON&regId=${areaCode}&tmFc=${date}`;
+    const weatherUrl = `https://apis.data.go.kr/1360000/MidFcstInfoService/getMidLandFcst?serviceKey=${APP_SERVICE_KEY}&pageNo=1&numOfRows=10&dataType=JSON&regId=${landForecastAreaCode}&tmFc=${date}`;
+    const temperatureData = await fetchData(temperatureUrl);
+    const weatherData = await fetchData(weatherUrl);
+
+    if (!temperatureData?.response?.body?.items?.item?.[0]) {
+      throw new Error("중기기온조회 API 응답 데이터 형식이 올바르지 않습니다.");
+    }
+    if (!weatherData?.response?.body?.items?.item?.[0]) {
+      throw new Error("중기육상예보 API 응답 데이터 형식이 올바르지 않습니다.");
     }
 
-    return data.response.body.items.item[0];
+    return [
+      temperatureData.response.body.items.item[0],
+      weatherData.response.body.items.item[0],
+    ];
   } catch (error) {
     console.error("주간 예보 데이터를 가져오는 중 오류 발생:", error);
     throw error;
