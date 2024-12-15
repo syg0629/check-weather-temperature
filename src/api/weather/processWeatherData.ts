@@ -5,10 +5,16 @@ import {
   WeatherData,
   WeatherItem,
   WeeklyItems,
+  WeeklyWeatherItems,
   YesterdayItem,
 } from "../../types/type";
 import { DATES, week } from "../../utils/date";
-import { pytEmojis, skyEmojis } from "../../utils/weatherEmojis";
+import {
+  pytEmojis,
+  skyEmojis,
+  weeklyWeather,
+  weeklyWeatherEmojis,
+} from "../../utils/weatherEmojis";
 import {
   fetchShortTermForecast,
   fetchWeeklyForecast,
@@ -21,6 +27,10 @@ const weatherData: WeatherData = {
   weatherConditions: [],
   weatherEmojis: [],
 };
+
+const currentDate = new Date();
+const currentHour = currentDate.getHours();
+const WEEKLY_WEATHER_DATA_UPDATE_HOUR = 12;
 
 // 날씨 데이터 찾기(어제, 오늘, 내일)
 const findWeatherData = (
@@ -76,6 +86,14 @@ const processShortTermData = (
     [
       findWeatherData(shortTermItems, "SKY", DATES.tomorrow),
       findWeatherData(shortTermItems, "PTY", DATES.tomorrow),
+    ],
+    [
+      findWeatherData(shortTermItems, "SKY", DATES.dayAfterTomorrow),
+      findWeatherData(shortTermItems, "PTY", DATES.dayAfterTomorrow),
+    ],
+    [
+      findWeatherData(shortTermItems, "SKY", DATES.twoDaysAfterTomorrow),
+      findWeatherData(shortTermItems, "PTY", DATES.twoDaysAfterTomorrow),
     ],
   ];
 
@@ -156,7 +174,10 @@ export const processShortTermForecast = async (userLocation: userLocation) => {
 };
 
 // 주간 예보 정보를 받아와 필요한 데이터만 화면에 노출
-const processWeeklyData = async (weeklyItems: WeeklyItems) => {
+const processWeeklyData = async (
+  weeklyItems: WeeklyItems,
+  weatherItems: WeeklyWeatherItems
+) => {
   const weeklyTMNs = [
     weeklyItems.taMin4,
     weeklyItems.taMin5,
@@ -167,13 +188,47 @@ const processWeeklyData = async (weeklyItems: WeeklyItems) => {
     weeklyItems.taMax5,
     weeklyItems.taMax6,
   ];
+  const weatherAms = [
+    weatherItems.wf4Am,
+    weatherItems.wf5Am,
+    weatherItems.wf6Am,
+  ];
+  const weatherPms = [
+    weatherItems.wf4Pm,
+    weatherItems.wf5Pm,
+    weatherItems.wf6Pm,
+  ];
 
+  let weatherEmojis = [];
+  if (currentHour < WEEKLY_WEATHER_DATA_UPDATE_HOUR) {
+    weatherEmojis = [...weatherAms];
+  } else {
+    weatherEmojis = [...weatherPms];
+  }
+  weatherEmojis = weatherEmojis.map((weatherData) => {
+    return findWeatherEmojis(weatherData);
+  });
   weatherData.TMNs = [...weatherData.TMNs, ...weeklyTMNs];
   weatherData.TMXs = [...weatherData.TMXs, ...weeklyTMXs];
+  weatherData.weatherEmojis = [...weatherData.weatherEmojis, ...weatherEmojis];
+};
+
+const findWeatherEmojis = (condition: string) => {
+  for (const [key, value] of Object.entries(weeklyWeather)) {
+    if (value.includes(condition)) {
+      return weeklyWeatherEmojis[key];
+    }
+  }
+  return "-";
 };
 
 const createWeeklyChart = () => {
-  createChart(".weekly-chart", week, [
+  //chart에서 날짜와 날씨 이모지를 함깨 노출하기 위한 배열
+  const dateAndWeatherEmojis = week
+    .slice(0, 7)
+    .map((date, index) => `${date}\n${weatherData.weatherEmojis[index]}`);
+
+  createChart(".weekly-chart", dateAndWeatherEmojis.slice(0, 7), [
     {
       label: "최저온도",
       fill: false,
@@ -196,7 +251,7 @@ const createWeeklyChart = () => {
 export const processWeeklyForecast = async (userLocation: userLocation) => {
   try {
     const weeklyItems = await fetchWeeklyForecast(DATES.today, userLocation);
-    processWeeklyData(weeklyItems);
+    processWeeklyData(weeklyItems[0], weeklyItems[1]);
     createWeeklyChart();
   } catch (error) {
     console.error("주간 데이터 처리 중 오류 발생:", error);
