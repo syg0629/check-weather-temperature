@@ -1,12 +1,14 @@
 import { LocationCode, userLocation } from "../../types/type";
 import { areaCodeMap } from "../../utils/areaCodeMap";
 import { branchCodeMap } from "../../utils/branchCodeMap";
+import { LandForecastAreaCodeMap } from "../../utils/LandForecastAreaCodeMap";
 import { fetchData } from "../fetchData";
 
 // 예보구역코드, 지점코드 오류 시 서울이 기본 값
 const DEFAULT_LOCATION = {
   areaCode: "11B10101",
   branchCode: "108",
+  landForecastAreaCode: "11B00000",
 };
 const KAKAO_REST_API_KEY = process.env.KAKAO_REST_API_KEY;
 
@@ -27,7 +29,11 @@ export const fetchReverseGeo = async (
       region_2depth_name,
       region_3depth_name
     );
-    return getAreaBranchCode(region_1depth_name);
+
+    if (region_1depth_name === "서울") {
+      return getAreaBranchCode(region_1depth_name);
+    }
+    return getAreaBranchCode(region_2depth_name.split("시")[0]);
   } catch (error) {
     alert(
       "카카오 맵을 통해 예보구역코드를 가져오는 중 오류가 발생하였습니다. 기본 위치(서울)로 날씨 정보를 가져옵니다."
@@ -53,8 +59,19 @@ const updateLocationDisplay = (
 const getAreaBranchCode = (locationName: string) => {
   const areaCode = areaCodeMap.get(locationName);
   const branchCode = branchCodeMap.get(locationName);
+  let landForecastAreaCode = "";
 
-  if (areaCode && branchCode) return { areaCode, branchCode };
+  for (const [code, region] of LandForecastAreaCodeMap) {
+    if (
+      region.split(", ").some((regionName) => regionName.includes(locationName))
+    ) {
+      landForecastAreaCode = code;
+      break;
+    }
+  }
+
+  if (areaCode && branchCode && landForecastAreaCode)
+    return { areaCode, branchCode, landForecastAreaCode };
   alert(
     `"${locationName}"의 예보구역코드를 찾을 수 없어 기본 위치(서울)로 날씨 정보를 가져옵니다.`
   );
