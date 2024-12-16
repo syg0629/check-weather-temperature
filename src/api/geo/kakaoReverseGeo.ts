@@ -1,7 +1,8 @@
+import { API_KEY } from "../../constants/api";
 import { LocationCode, userLocation } from "../../types/type";
-import { areaCodeMap } from "../../utils/areaCodeMap";
-import { branchCodeMap } from "../../utils/branchCodeMap";
-import { LandForecastAreaCodeMap } from "../../utils/LandForecastAreaCodeMap";
+import { areaCodeMap } from "../../constants/maps/areaCodeMap";
+import { branchCodeMap } from "../../constants/maps/branchCodeMap";
+import { landForecastAreaCodeMap } from "../../constants/maps/landForecastAreaCodeMap";
 import { fetchData } from "../fetchData";
 
 // 예보구역코드, 지점코드 오류 시 서울이 기본 값
@@ -10,7 +11,6 @@ const DEFAULT_LOCATION = {
   branchCode: "108",
   landForecastAreaCode: "11B00000",
 };
-const KAKAO_REST_API_KEY = process.env.KAKAO_REST_API_KEY;
 
 export const fetchReverseGeo = async (
   userLocation: userLocation
@@ -19,7 +19,7 @@ export const fetchReverseGeo = async (
     const url = `https://dapi.kakao.com/v2/local/geo/coord2address.json?x=${userLocation.lng}&y=${userLocation.lat}`;
     const data = await fetchData(url, {
       headers: {
-        Authorization: `KakaoAK ${KAKAO_REST_API_KEY}`,
+        Authorization: `KakaoAK ${API_KEY.KAKAO_REST_API_KEY}`,
       },
     });
     const { region_1depth_name, region_2depth_name, region_3depth_name } =
@@ -61,7 +61,7 @@ const getAreaBranchCode = (locationName: string) => {
   const branchCode = branchCodeMap.get(locationName);
   let landForecastAreaCode = "";
 
-  for (const [code, region] of LandForecastAreaCodeMap) {
+  for (const [code, region] of landForecastAreaCodeMap) {
     if (
       region.split(", ").some((regionName) => regionName.includes(locationName))
     ) {

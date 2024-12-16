@@ -1,4 +1,5 @@
 import { createChart } from "../../chart";
+import { UPDATE_HOURS } from "../../constants/api";
 import {
   ShortTermItem,
   userLocation,
@@ -8,13 +9,13 @@ import {
   WeeklyWeatherItems,
   YesterdayItem,
 } from "../../types/type";
-import { DATES, week } from "../../utils/date";
+import { DATES, getCutrrentHour, week } from "../../constants/date";
 import {
   pytEmojis,
   skyEmojis,
   weeklyWeather,
   weeklyWeatherEmojis,
-} from "../../utils/weatherEmojis";
+} from "../../constants/weatherEmojis";
 import {
   fetchShortTermForecast,
   fetchWeeklyForecast,
@@ -27,10 +28,6 @@ const weatherData: WeatherData = {
   weatherConditions: [],
   weatherEmojis: [],
 };
-
-const currentDate = new Date();
-const currentHour = currentDate.getHours();
-const WEEKLY_WEATHER_DATA_UPDATE_HOUR = 12;
 
 // 날씨 데이터 찾기(어제, 오늘, 내일)
 const findWeatherData = (
@@ -200,7 +197,7 @@ const processWeeklyData = async (
   ];
 
   let weatherEmojis = [];
-  if (currentHour < WEEKLY_WEATHER_DATA_UPDATE_HOUR) {
+  if (getCutrrentHour() < UPDATE_HOURS.WEEKLY_WEATHER) {
     weatherEmojis = [...weatherAms];
   } else {
     weatherEmojis = [...weatherPms];

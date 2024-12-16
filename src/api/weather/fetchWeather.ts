@@ -1,19 +1,14 @@
+import { API_KEY, UPDATE_HOURS } from "../../constants/api";
 import { userLocation } from "../../types/type";
-import { DATES, getFormattedDate } from "../../utils/date";
+import { DATES, getCutrrentHour, getFormattedDate } from "../../constants/date";
 import { fetchData } from "../fetchData";
 import { fetchReverseGeo } from "../geo/kakaoReverseGeo";
 
-const APP_SERVICE_KEY = process.env.APP_SERVICE_KEY;
-const currentDate = new Date();
-const currentHour = currentDate.getHours();
-
-//데이터 갱신 주기에 따른 시간 설정
-const YESTERDAY_DATA_UPDATE_HOUR = 11;
-const WEEKLY_DATA_UPDATE_HOUR = 6;
+const currentHour = getCutrrentHour();
 
 // 종간 예보(어제)
 const getYesterdayBaseTime = () => {
-  if (currentHour < YESTERDAY_DATA_UPDATE_HOUR) {
+  if (currentHour < UPDATE_HOURS.YESTERDAY) {
     return getFormattedDate(-2);
   }
   return DATES.yesterday;
@@ -43,7 +38,7 @@ export const fetchYesterdayForecast = async (userLocation: userLocation) => {
     const branchCode = (await fetchReverseGeo(userLocation)).branchCode;
     if (!branchCode) throw new Error("지역 코드를 가져오는데 실패했습니다.");
 
-    const url = `https://apis.data.go.kr/1360000/AsosDalyInfoService/getWthrDataList?serviceKey=${APP_SERVICE_KEY}&pageNo=1&numOfRows=10&dataType=JSON&dataCd=ASOS&dateCd=DAY&startDt=${date}&endDt=${date}&stnIds=${branchCode}`;
+    const url = `https://apis.data.go.kr/1360000/AsosDalyInfoService/getWthrDataList?serviceKey=${API_KEY.APP_SERVICE_KEY}&pageNo=1&numOfRows=10&dataType=JSON&dataCd=ASOS&dateCd=DAY&startDt=${date}&endDt=${date}&stnIds=${branchCode}`;
     const data = await fetchData(url);
 
     if (!data?.response?.body?.items?.item) {
@@ -64,7 +59,7 @@ export const fetchShortTermForecast = async (userLocation: userLocation) => {
     const { date, time } = getShortTermBaseTime();
     if (!userLocation) throw new Error("지역 코드를 가져오는데 실패했습니다.");
 
-    const url = `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${APP_SERVICE_KEY}&pageNo=1&numOfRows=1000&dataType=JSON&base_date=${date}&base_time=${time}&nx=${userLocation.x}&ny=${userLocation.y}`;
+    const url = `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${API_KEY.APP_SERVICE_KEY}&pageNo=1&numOfRows=1000&dataType=JSON&base_date=${date}&base_time=${time}&nx=${userLocation.x}&ny=${userLocation.y}`;
     const data = await fetchData(url);
 
     if (!data?.response?.body?.items?.item) {
@@ -81,7 +76,7 @@ export const fetchShortTermForecast = async (userLocation: userLocation) => {
 
 // 중기 예보
 const getWeeklyBaseDate = (date: string) => {
-  if (currentHour < WEEKLY_DATA_UPDATE_HOUR) {
+  if (currentHour < UPDATE_HOURS.WEEKLY) {
     return DATES.yesterday + "1800";
   }
   // 중기예보 발표 6시가 4일부터, 18시는 5일부터 제공
@@ -100,8 +95,8 @@ export const fetchWeeklyForecast = async (
 
     if (!areaCode) throw new Error("지역 코드를 가져오는데 실패했습니다.");
 
-    const temperatureUrl = `https://apis.data.go.kr/1360000/MidFcstInfoService/getMidTa?serviceKey=${APP_SERVICE_KEY}&pageNo=1&numOfRows=10&dataType=JSON&regId=${areaCode}&tmFc=${date}`;
-    const weatherUrl = `https://apis.data.go.kr/1360000/MidFcstInfoService/getMidLandFcst?serviceKey=${APP_SERVICE_KEY}&pageNo=1&numOfRows=10&dataType=JSON&regId=${landForecastAreaCode}&tmFc=${date}`;
+    const temperatureUrl = `https://apis.data.go.kr/1360000/MidFcstInfoService/getMidTa?serviceKey=${API_KEY.APP_SERVICE_KEY}&pageNo=1&numOfRows=10&dataType=JSON&regId=${areaCode}&tmFc=${date}`;
+    const weatherUrl = `https://apis.data.go.kr/1360000/MidFcstInfoService/getMidLandFcst?serviceKey=${API_KEY.APP_SERVICE_KEY}&pageNo=1&numOfRows=10&dataType=JSON&regId=${landForecastAreaCode}&tmFc=${date}`;
     const temperatureData = await fetchData(temperatureUrl);
     const weatherData = await fetchData(weatherUrl);
 

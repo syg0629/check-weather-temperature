@@ -1,6 +1,6 @@
 // 기상청 중기예보 조회서비스 API 육상예보구역코드
 // 육상예보구역코드가 있어야 그 지역의 주간 날씨 조회 가능
-export const LandForecastAreaCodeMap: Map<string, string> = new Map([
+export const landForecastAreaCodeMap: Map<string, string> = new Map([
   ["11B00000", "서울, 인천, 경기도"],
   ["11D10000", "강원도영서"],
   ["11D20000", "강원도영동"],
