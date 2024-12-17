@@ -64,3 +64,13 @@ export interface LocationCode {
   branchCode: string;
   landForecastAreaCode: string;
 }
+
+export interface WeatherResponse<T> {
+  response: {
+    body: {
+      items: {
+        item: T[];
+      };
+    };
+  };
+}
