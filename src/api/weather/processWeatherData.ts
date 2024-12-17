@@ -159,8 +159,8 @@ export const processShortTermForecast = async (userLocation: userLocation) => {
       throw new Error("데이터 가져오기 실패");
     }
 
-    const yesterdayItems = results[0].value as YesterdayItem[];
-    const todayItems = results[1].value as ShortTermItem[];
+    const yesterdayItems = results[0].value;
+    const todayItems = results[1].value;
 
     processShortTermData(yesterdayItems, todayItems);
     createShortTermChart();
