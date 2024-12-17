@@ -1,5 +1,12 @@
 import { API_KEY, UPDATE_HOURS } from "../../constants/api";
-import { userLocation } from "../../types/type";
+import {
+  ShortTermItem,
+  userLocation,
+  WeatherResponse,
+  WeeklyItems,
+  WeeklyWeatherItems,
+  YesterdayItem,
+} from "../../types/type";
 import { DATES, getCutrrentHour, getFormattedDate } from "../../constants/date";
 import { fetchData } from "../fetchData";
 import { fetchReverseGeo } from "../geo/kakaoReverseGeo";
@@ -32,6 +39,14 @@ const getShortTermBaseTime = () => {
   };
 };
 
+const validateResponse = <T>(data: WeatherResponse<T>) => {
+  if (!data?.response?.body?.items?.item) {
+    console.error("API 응답: ", data);
+    throw new Error("API 응답 데이터 형식이 올바르지 않습니다.");
+  }
+  return data.response.body.items.item;
+};
+
 export const fetchYesterdayForecast = async (userLocation: userLocation) => {
   try {
     const date = getYesterdayBaseTime();
@@ -40,13 +55,7 @@ export const fetchYesterdayForecast = async (userLocation: userLocation) => {
 
     const url = `https://apis.data.go.kr/1360000/AsosDalyInfoService/getWthrDataList?serviceKey=${API_KEY.APP_SERVICE_KEY}&pageNo=1&numOfRows=10&dataType=JSON&dataCd=ASOS&dateCd=DAY&startDt=${date}&endDt=${date}&stnIds=${branchCode}`;
     const data = await fetchData(url);
-
-    if (!data?.response?.body?.items?.item) {
-      console.error("API 응답: ", data);
-      throw new Error("API 응답 데이터 형식이 올바르지 않습니다.");
-    }
-
-    return data.response.body.items.item;
+    return validateResponse<YesterdayItem>(data);
   } catch (error) {
     console.error(`어제 데이터를 가져오는 중 오류 발생: `, error);
     throw error;
@@ -61,13 +70,7 @@ export const fetchShortTermForecast = async (userLocation: userLocation) => {
 
     const url = `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${API_KEY.APP_SERVICE_KEY}&pageNo=1&numOfRows=1000&dataType=JSON&base_date=${date}&base_time=${time}&nx=${userLocation.x}&ny=${userLocation.y}`;
     const data = await fetchData(url);
-
-    if (!data?.response?.body?.items?.item) {
-      console.error("API 응답: ", data);
-      throw new Error("단기예보 API 응답 데이터 형식이 올바르지 않습니다.");
-    }
-
-    return data.response.body.items.item;
+    return validateResponse<ShortTermItem>(data);
   } catch (error) {
     console.error(`단기 데이터를 가져오는 중 오류 발생: `, error);
     throw error;
@@ -86,7 +89,7 @@ const getWeeklyBaseDate = (date: string) => {
 export const fetchWeeklyForecast = async (
   date: string,
   userLocation: userLocation
-) => {
+): Promise<[WeeklyItems, WeeklyWeatherItems]> => {
   try {
     date = getWeeklyBaseDate(date);
     const { areaCode, landForecastAreaCode } = await fetchReverseGeo(
@@ -100,16 +103,9 @@ export const fetchWeeklyForecast = async (
     const temperatureData = await fetchData(temperatureUrl);
     const weatherData = await fetchData(weatherUrl);
 
-    if (!temperatureData?.response?.body?.items?.item?.[0]) {
-      throw new Error("중기기온조회 API 응답 데이터 형식이 올바르지 않습니다.");
-    }
-    if (!weatherData?.response?.body?.items?.item?.[0]) {
-      throw new Error("중기육상예보 API 응답 데이터 형식이 올바르지 않습니다.");
-    }
-
     return [
-      temperatureData.response.body.items.item[0],
-      weatherData.response.body.items.item[0],
+      validateResponse<WeeklyItems>(temperatureData)[0],
+      validateResponse<WeeklyWeatherItems>(weatherData)[0],
     ];
   } catch (error) {
     console.error("주간 예보 데이터를 가져오는 중 오류 발생:", error);
