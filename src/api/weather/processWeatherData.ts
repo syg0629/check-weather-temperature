@@ -150,17 +150,20 @@ const createShortTermChart = () => {
 
 export const processShortTermForecast = async (userLocation: userLocation) => {
   try {
-    const results = await Promise.allSettled([
+    const [yesterdayResult, shortTermResult] = await Promise.allSettled([
       fetchYesterdayForecast(userLocation),
       fetchShortTermForecast(userLocation),
     ]);
 
-    if (results[0].status === "rejected" || results[1].status === "rejected") {
+    if (
+      yesterdayResult.status === "rejected" ||
+      shortTermResult.status === "rejected"
+    ) {
       throw new Error("데이터 가져오기 실패");
     }
 
-    const yesterdayItems = results[0].value;
-    const todayItems = results[1].value;
+    const yesterdayItems = yesterdayResult.value;
+    const todayItems = shortTermResult.value;
 
     processShortTermData(yesterdayItems, todayItems);
     createShortTermChart();
