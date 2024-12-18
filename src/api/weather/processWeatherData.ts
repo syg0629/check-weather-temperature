@@ -21,6 +21,7 @@ import {
   fetchWeeklyForecast,
   fetchYesterdayForecast,
 } from "./fetchWeather";
+import { CHART_TMN, CHART_TMX } from "../../constants/chart";
 
 const weatherData: WeatherData = {
   TMNs: [],
@@ -115,22 +116,8 @@ const createShortTermChart = () => {
     .map((date, index) => `${date}\n${weatherData.weatherEmojis[index]}`);
 
   createChart(".today-chart", dateAndWeatherEmojis.slice(0, 3), [
-    {
-      label: "최저온도",
-      fill: false,
-      data: weatherData.TMNs,
-      backgroundColor: ["rgba(77,201,246, 0.2)"],
-      borderColor: ["rgba(77,201,246, 1)"],
-      borderWidth: 3,
-    },
-    {
-      label: "최고온도",
-      fill: false,
-      data: weatherData.TMXs,
-      backgroundColor: ["rgba(255, 99, 132, 0.2)"],
-      borderColor: ["rgba(255, 99, 132, 1)"],
-      borderWidth: 3,
-    },
+    CHART_TMX(weatherData.TMNs),
+    CHART_TMN(weatherData.TMXs),
   ]);
 
   const maxTempDiff = Number(weatherData.TMXs[1]) - Number(weatherData.TMXs[0]);
@@ -229,22 +216,8 @@ const createWeeklyChart = () => {
     .map((date, index) => `${date}\n${weatherData.weatherEmojis[index]}`);
 
   createChart(".weekly-chart", dateAndWeatherEmojis.slice(0, 7), [
-    {
-      label: "최저온도",
-      fill: false,
-      data: weatherData.TMNs,
-      backgroundColor: ["rgba(77,201,246, 0.2)"],
-      borderColor: ["rgba(77,201,246, 1)"],
-      borderWidth: 3,
-    },
-    {
-      label: "최고온도",
-      fill: false,
-      data: weatherData.TMXs,
-      backgroundColor: ["rgba(255, 99, 132, 0.2)"],
-      borderColor: ["rgba(255, 99, 132, 1)"],
-      borderWidth: 3,
-    },
+    CHART_TMX(weatherData.TMNs),
+    CHART_TMN(weatherData.TMXs),
   ]);
 };
 
