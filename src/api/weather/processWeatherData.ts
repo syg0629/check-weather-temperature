@@ -97,10 +97,13 @@ const processShortTermData = (
 
   weatherData.weatherEmojis = weatherData.weatherConditions.map(
     ([skyCode, pytCode]) => {
-      if (pytCode === "0") {
-        if (["1", "3", "4"].includes(skyCode)) return skyEmojis[skyCode];
+      //강수 없음
+      if (pytCode === "0" && ["1", "3", "4"].includes(skyCode)) {
+        return skyEmojis[skyCode];
+        //비
       } else if (["1", "2", "5"].includes(pytCode)) {
         return pytEmojis[1];
+        //눈
       } else if (["3", "6", "7"].includes(pytCode)) {
         return pytEmojis[3];
       }
