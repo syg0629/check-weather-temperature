@@ -21,7 +21,7 @@ import {
   fetchWeeklyForecast,
   fetchYesterdayForecast,
 } from "./fetchWeather";
-import { CHART_TMN, CHART_TMX } from "../../constants/chart";
+import { CHART_TMN, CHART_TMX } from "../../constants/chartConfig";
 
 const weatherData: WeatherData = {
   TMNs: [],
@@ -116,8 +116,8 @@ const createShortTermChart = () => {
     .map((date, index) => `${date}\n${weatherData.weatherEmojis[index]}`);
 
   createChart(".today-chart", dateAndWeatherEmojis.slice(0, 3), [
-    CHART_TMX(weatherData.TMNs),
-    CHART_TMN(weatherData.TMXs),
+    CHART_TMN(weatherData.TMNs),
+    CHART_TMX(weatherData.TMXs),
   ]);
 
   const maxTempDiff = Number(weatherData.TMXs[1]) - Number(weatherData.TMXs[0]);
@@ -161,7 +161,7 @@ export const processShortTermForecast = async (userLocation: userLocation) => {
 };
 
 // 주간 예보 정보를 받아와 필요한 데이터만 화면에 노출
-const processWeeklyData = async (
+const processWeeklyData = (
   weeklyItems: WeeklyItems,
   weatherItems: WeeklyWeatherItems
 ) => {
@@ -216,8 +216,8 @@ const createWeeklyChart = () => {
     .map((date, index) => `${date}\n${weatherData.weatherEmojis[index]}`);
 
   createChart(".weekly-chart", dateAndWeatherEmojis.slice(0, 7), [
-    CHART_TMX(weatherData.TMNs),
-    CHART_TMN(weatherData.TMXs),
+    CHART_TMN(weatherData.TMNs),
+    CHART_TMX(weatherData.TMXs),
   ]);
 };
 
