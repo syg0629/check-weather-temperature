@@ -4,12 +4,11 @@ import {
   ShortTermItem,
   userLocation,
   WeatherData,
-  WeatherItem,
   WeeklyItems,
   WeeklyWeatherItems,
   YesterdayItem,
 } from "../../types/type";
-import { DATES, getCutrrentHour, week } from "../../constants/date";
+import { DATES, week } from "../../constants/date";
 import {
   pytEmojis,
   skyEmojis,
@@ -22,6 +21,13 @@ import {
   fetchYesterdayForecast,
 } from "./fetchWeather";
 import { CHART_TMN, CHART_TMX } from "../../constants/chartConfig";
+import { getCutrrentHour } from "../../utils/date";
+import {
+  SHORT_TERM_WEATHER_CATEGORY,
+  ShortTermWeatherCategory,
+  YESTERDAY_WEATHER_CATEGORY,
+  YesterdayWeatherCategory,
+} from "../../constants/weather";
 
 const weatherData: WeatherData = {
   TMNs: [],
@@ -30,25 +36,33 @@ const weatherData: WeatherData = {
   weatherEmojis: [],
 };
 
-// 날씨 데이터 찾기(어제, 오늘, 내일)
-const findWeatherData = (
-  items: WeatherItem[],
-  category: string,
-  date: string
-) => {
-  // 어제 날짜인 경우
-  if (date === DATES.yesterday) {
-    const item = items[0] as YesterdayItem;
-    return category === "minTa" ? item.minTa : item.maxTa ?? "-";
-  }
+// 날씨 데이터 찾기(어제)
+const findYesterdayWeatherData = ({
+  item,
+  category,
+}: {
+  item: YesterdayItem;
+  category: YesterdayWeatherCategory;
+}) => {
+  return category === YESTERDAY_WEATHER_CATEGORY.minTa
+    ? item.minTa
+    : item.maxTa ?? "-";
+};
 
-  // 오늘, 내일 날짜인 경우
-  const shortTermItems = items as ShortTermItem[];
-  const item = shortTermItems.find(
+// 날씨 데이터 찾기(오늘, 내일)
+const findShortTermWeatherData = ({
+  items,
+  category,
+  date,
+}: {
+  items: ShortTermItem[];
+  category: ShortTermWeatherCategory;
+  date: string;
+}) => {
+  const item = items.find(
     (item) => item.category === category && item.fcstDate === date
   );
-
-  return item.fcstValue ?? "-";
+  return item?.fcstValue ?? "-";
 };
 
 // 단기 예보 정보를 받아와 필요한 데이터만 화면에 노출
@@ -56,43 +70,55 @@ const processShortTermData = (
   yesterdayItems: YesterdayItem[],
   shortTermItems: ShortTermItem[]
 ) => {
+  const yesterdayItem = yesterdayItems[0];
+  const dates = [
+    DATES.today,
+    DATES.tomorrow,
+    DATES.dayAfterTomorrow,
+    DATES.twoDaysAfterTomorrow,
+  ];
+
   weatherData.TMNs = [
-    findWeatherData([yesterdayItems[0]], "minTa", DATES.yesterday),
-    findWeatherData(shortTermItems, "TMN", DATES.today),
-    findWeatherData(shortTermItems, "TMN", DATES.tomorrow),
-    //어제, 오늘, 내일 온도에서는 필요 없지만 주간 예보를 위해 미리 넣어둠
-    findWeatherData(shortTermItems, "TMN", DATES.dayAfterTomorrow),
-    findWeatherData(shortTermItems, "TMN", DATES.twoDaysAfterTomorrow),
+    findYesterdayWeatherData({
+      item: yesterdayItem,
+      category: YESTERDAY_WEATHER_CATEGORY.minTa,
+    }),
+    ...dates.map((date) =>
+      findShortTermWeatherData({
+        items: shortTermItems,
+        category: SHORT_TERM_WEATHER_CATEGORY.TMN,
+        date,
+      })
+    ),
   ];
   weatherData.TMXs = [
-    findWeatherData([yesterdayItems[0]], "maxTa", DATES.yesterday),
-    findWeatherData(shortTermItems, "TMX", DATES.today),
-    findWeatherData(shortTermItems, "TMX", DATES.tomorrow),
-    //어제, 오늘, 내일 온도에서는 필요 없지만 주간 예보를 위해 미리 넣어둠
-    findWeatherData(shortTermItems, "TMX", DATES.dayAfterTomorrow),
-    findWeatherData(shortTermItems, "TMX", DATES.twoDaysAfterTomorrow),
+    findYesterdayWeatherData({
+      item: yesterdayItem,
+      category: YESTERDAY_WEATHER_CATEGORY.maxTa,
+    }),
+    ...dates.map((date) =>
+      findShortTermWeatherData({
+        items: shortTermItems,
+        category: SHORT_TERM_WEATHER_CATEGORY.TMX,
+        date,
+      })
+    ),
   ];
   weatherData.weatherConditions = [
-    [
-      findWeatherData(yesterdayItems, "SKY", DATES.yesterday),
-      findWeatherData(yesterdayItems, "PTY", DATES.yesterday),
-    ],
-    [
-      findWeatherData(shortTermItems, "SKY", DATES.today),
-      findWeatherData(shortTermItems, "PTY", DATES.today),
-    ],
-    [
-      findWeatherData(shortTermItems, "SKY", DATES.tomorrow),
-      findWeatherData(shortTermItems, "PTY", DATES.tomorrow),
-    ],
-    [
-      findWeatherData(shortTermItems, "SKY", DATES.dayAfterTomorrow),
-      findWeatherData(shortTermItems, "PTY", DATES.dayAfterTomorrow),
-    ],
-    [
-      findWeatherData(shortTermItems, "SKY", DATES.twoDaysAfterTomorrow),
-      findWeatherData(shortTermItems, "PTY", DATES.twoDaysAfterTomorrow),
-    ],
+    // 어제는 하늘상태, 강수형태 데이터가 없음
+    ["-", "-"],
+    ...dates.map((date) => [
+      findShortTermWeatherData({
+        items: shortTermItems,
+        category: SHORT_TERM_WEATHER_CATEGORY.SKY,
+        date,
+      }),
+      findShortTermWeatherData({
+        items: shortTermItems,
+        category: SHORT_TERM_WEATHER_CATEGORY.PTY,
+        date,
+      }),
+    ]),
   ];
 
   weatherData.weatherEmojis = weatherData.weatherConditions.map(

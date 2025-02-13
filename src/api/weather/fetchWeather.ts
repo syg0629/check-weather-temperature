@@ -7,9 +7,10 @@ import {
   WeeklyWeatherItems,
   YesterdayItem,
 } from "../../types/type";
-import { DATES, getCutrrentHour, getFormattedDate } from "../../constants/date";
+import { DATES } from "../../constants/date";
 import { fetchData } from "../fetchData";
 import { fetchReverseGeo } from "../geo/kakaoReverseGeo";
+import { getCutrrentHour, getFormattedDate } from "../../utils/date";
 
 const currentHour = getCutrrentHour();
 

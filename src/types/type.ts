@@ -28,8 +28,6 @@ export type ShortTermItem = {
   fcstValue: string;
 };
 
-export type WeatherItem = YesterdayItem | ShortTermItem;
-
 export type WeeklyItems = {
   taMin4: string;
   taMax4: string;
