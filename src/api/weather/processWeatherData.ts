@@ -28,6 +28,7 @@ import {
   YESTERDAY_WEATHER_CATEGORY,
   YesterdayWeatherCategory,
 } from "../../constants/weather";
+import { getCachedWeather, setCachedWeather } from "../../utils/cache";
 
 const weatherData: WeatherData = {
   TMNs: [],
@@ -165,6 +166,13 @@ const createShortTermChart = () => {
 };
 
 export const processShortTermForecast = async (userLocation: userLocation) => {
+  const cached = getCachedWeather(userLocation, "shortTerm");
+  if (cached) {
+    processShortTermData(cached.yesterdayItems, cached.todayItems);
+    createShortTermChart();
+    return;
+  }
+
   try {
     const [yesterdayResult, shortTermResult] = await Promise.allSettled([
       fetchYesterdayForecast(userLocation),
@@ -183,6 +191,15 @@ export const processShortTermForecast = async (userLocation: userLocation) => {
 
     processShortTermData(yesterdayItems, todayItems);
     createShortTermChart();
+
+    setCachedWeather(
+      userLocation,
+      {
+        yesterdayItems,
+        todayItems,
+      },
+      "shortTerm"
+    );
   } catch (error) {
     console.error("단기 예보 데이터 처리 중 오류 발생:", error);
     throw error;
@@ -251,10 +268,24 @@ const createWeeklyChart = () => {
 };
 
 export const processWeeklyForecast = async (userLocation: userLocation) => {
+  const cached = getCachedWeather(userLocation, "weekly");
+  if (cached) {
+    processWeeklyData(cached.weeklyItems, cached.weatherItems);
+    createWeeklyChart();
+    return;
+  }
   try {
     const weeklyItems = await fetchWeeklyForecast(DATES.today, userLocation);
     processWeeklyData(weeklyItems[0], weeklyItems[1]);
     createWeeklyChart();
+    setCachedWeather(
+      userLocation,
+      {
+        weeklyItems: weeklyItems[0],
+        weatherItems: weeklyItems[1],
+      },
+      "weekly"
+    );
   } catch (error) {
     console.error("주간 데이터 처리 중 오류 발생:", error);
     alert("주간 데이터 처리 중 오류가 발생했습니다.");
