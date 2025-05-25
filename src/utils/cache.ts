@@ -26,7 +26,7 @@ export const getCachedWeather = (location: userLocation, type: CacheType) => {
 
 export const setCachedWeather = (
   location: userLocation,
-  data: any,
+  data: unknown,
   type: CacheType
 ) => {
   const today = getFormattedDate(0);
